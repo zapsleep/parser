@@ -8,8 +8,6 @@ using namespace std;
 class Var {
 	public:
 	static long isVar(string s);
-	
-	private:
 	static long isWord(string s);
 	static long isFunc(string s);
 };

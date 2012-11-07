@@ -10,12 +10,19 @@ int main (int argc, char **argv) {
 
    if (a<b)
    {
-      i = a+b*c;
+     i=a;
+     a-b;
+     a*c;
+     fin0%e2;
    }
    else 
    {
       i = 5 + 7 - 2*3;
    }
-
+   
+   if (a > b) {
+	f;
+   }
+   
    return 0;
 }

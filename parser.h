@@ -9,6 +9,8 @@ class Parser {
 	public:
 	static void parse(string s);
 	
+	private:
+	static bool isSpace(char c);
 };
 
 #endif

@@ -10,6 +10,8 @@ class Expr {
 	static long isMathExpr (string s);
 	static long isCondExpr (string s);
 	static long isBlock (string s);
+	private:
+	static long isMathOper (string s);
 };
 
 #endif

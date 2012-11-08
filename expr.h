@@ -11,7 +11,11 @@ class Expr {
 	static long isCondExpr (string s);
 	static long isBlock (string s);
 	private:
-	static long isMathOper (string s);
+	static long isMathExprAdd (string s);
+	static long isMathExprMult (string s);
+	static long isMathExprAddOp (string s);
+	static long isMathExprMultOp (string s);
+	static long isSemicolon (string s);
 };
 
 #endif

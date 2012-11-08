@@ -3,57 +3,74 @@
 #include "var.h"
 
 long Var::isVar(string s) {
+	long parseDepth;
 	
-	
-	return s.length();
-}
-
-long Var::isWord(string s) {
-	int i=0;
-	char c;
-	
-	while ((c=s.at(i++))!=string::npos) {
-		if (c==' ' || c=='\t' || c=='\n') continue;
-		else if (isalpha(c)) break;
-		else break;
+	parseDepth = Var::isWord(s);
+	if (parseDepth) {
+		//cout << "var is word" << endl;
+		return parseDepth;
 	}
 	
-	while ((c=s.at(i++))!=string::npos) {
-		if (isalnum(c)) continue;
-		else {
-			cout << "Var is valid: " << s.substr(0, i-1) << endl;
-			return i-1;
-		}
+	parseDepth = Var::isNum(s);
+	if (parseDepth) {
+		//cout << "var is num: " << s.substr(0, parseDepth) << endl;
+		return parseDepth;
 	}
 	
-	cout << "Var is non-valid: illegal starting symbol" << endl;
+	//cout << "var failed" << endl;
 	return 0;
 }
 
-long Var::isFunc(string s) {
-	int i=0;
-	long termLength;
+long Var::isNum(string s) {
 	char c;
+	long pos=0;
 	
-	termLength = Var::isWord(s);
-	if (!termLength) {
-		cout << "Func is non-valid: no word" << endl;
-		return 0;
-	}
-	
-	i = termLength+1;
-	while((c=s.at(i++))!=string::npos) {
+	while ((c=s.at(pos++))!=string::npos) {
 		if (c==' ' || c=='\t' || c=='\n') continue;
-		else if (c=='(') break;
+		else if (isdigit(c)) break;
 		else {
-			cout << "Func is invalid: no bracket" << endl;
+			//cout << "varNum failed" << endl;
 			return 0;
 		}
 	}
 	
-	//check inside the brackets
+	while ((c=s.at(pos++))!=string::npos) {
+		if (isdigit(c)) continue;
+		else {
+			//cout << "var is num" << endl;
+			return pos-1;
+		}
+	}
 	
+	//cout << "varNum failed" << endl;
+	return 0;
+}
+
+long Var::isWord(string s) {
+	long pos=0;
+	char c;
 	
-	cout << "Func is invalid" << endl;
+	while ((c=s.at(pos++))!=string::npos) {
+		if (c==' ' || c=='\t' || c=='\n') continue;
+		else if (isalpha(c)) break;
+		else {
+			//cout << "var failed: wrong first symbol" << endl;
+			return 0;
+		}
+	}
+	
+	while ((c=s.at(pos++))!=string::npos) {
+		if (isalnum(c)) continue;
+		else {
+			//cout << "var is valid: " << s.substr(0,pos-1) << endl;
+			return pos-1;
+		}
+	}
+	
+	//cout << "var failed" << endl;
+	return 0;
+}
+
+long Var::isFunc(string s) {
 	return 0;
 }

@@ -10,6 +10,7 @@ class Var {
 	static long isVar(string s);
 	static long isWord(string s);
 	static long isFunc(string s);
+	static long isNum(string s);
 };
 
 #endif

@@ -8,12 +8,12 @@ int main (int argc, char **argv) {
 
    printf("Hello world!\n");
 
-   if (a<b)
+   if ((a<b))
    {
-     i=a;
-     a-b;
-     a*c;
-     fin0%e2;
+     i=((a+b)*c);
+     h=a-b;
+     s=(b=a)*c;
+     s23=fin0%e2;
    }
    else 
    {

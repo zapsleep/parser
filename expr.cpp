@@ -5,143 +5,233 @@
 using namespace std;
 
 long Expr::isMathExpr(string s) {
+	//cout << "Parsing math_expr" << endl;
 	char c;
-	int i=0;
-	long overall=0;
+	long parseLength;
+	long pos=0;
 	
-	long termLength = Var::isWord(s);
-	if (!termLength) {
-		cout << "Math expr is invalid: no var at start" << endl;
+	parseLength = Expr::isMathExprAdd(s);
+	if (!parseLength) {
+		//cout << "math_expr failed" << endl;
 		return 0;
 	}
-	overall+=termLength;
+	pos+=parseLength;
 	
-	termLength = Expr::isMathOper(s.substr(overall));
-	if (!termLength) {
-		cout << "Math expr is invalid: no operator" << endl;
+	while ((c=s.at(pos))!=string::npos) {
+		parseLength = Expr::isMathExprAddOp(s.substr(pos));
+		if (!parseLength) {
+			//cout << "math_expr is add: " << s.substr(0,pos) << endl;
+			return pos;
+		}
+		long prePos = parseLength;
+		parseLength = Expr::isMathExprAdd(s.substr(pos+parseLength));
+		if (!parseLength) {
+			//cout << "math_exrp is add: " << s.substr(0,pos) << endl;
+			return pos;
+		}
+		pos+=(prePos+parseLength);
+	}
+	
+	//cout << "math_expr: End of file is reached" << endl;
+	return pos;
+}
+
+long Expr::isMathExprAdd(string s) {
+	//cout << "Parsing add" << endl;
+	char c;
+	long parseLength;
+	long pos=0;
+	
+	parseLength = Expr::isMathExprMult(s);
+	if (!parseLength) {
+		//cout << "add failed" << endl;
 		return 0;
 	}
-	overall+=termLength;
+	pos+=parseLength;
 	
-	termLength = Var::isWord(s.substr(overall));
-	if (!termLength) {
-		cout << "Math expr is invalid: no var at end" << endl;
-		return 0;
+	while ((c=s.at(pos))!=string::npos) {
+		parseLength = Expr::isMathExprMultOp(s.substr(pos));
+		if (!parseLength) {
+			//cout << "add is mult: " << s.substr(0,pos) << endl;
+			return pos;
+		}
+		long prePos = parseLength;
+		parseLength = Expr::isMathExprMult(s.substr(pos+parseLength));
+		if (!parseLength) {
+			//cout << "add is mult: " << s.substr(0,pos) << endl;
+			return pos;
+		}
+		pos+=(prePos+parseLength);
 	}
-	overall+=termLength;
 	
-	while ((c=s.at(overall++))!=string::npos) {
+	//cout << "add: End of file is reached" << endl;
+	return pos;
+}
+
+long Expr::isMathExprMult(string s ) {
+	//cout << "Parsing mult" << endl;
+	char c;
+	long parseLength;
+	long pos=0;
+	
+	parseLength = Var::isVar(s);
+	if (!parseLength) {
+		while ((c=s.at(pos++))!=string::npos) {
+			if (c==' ' || c=='\t' || c=='\n') continue;
+			else if (c=='(') break;
+			else {
+				//cout << "Bracket mult failed" << endl;
+				return 0;
+			}
+		}
+		parseLength = Expr::isMathExpr(s.substr(pos));
+		if (!parseLength) {
+			//cout << "No math_expr inside brackets" << endl;
+			return 0;
+		}
+		pos+=parseLength;
+		while ((c=s.at(pos++))!=string::npos) {
+			if (c==' ' || c=='\t' || c=='\n') continue;
+			else if (c==')') {
+				//cout << "mult is valid (expr)" << s.substr(0,pos) << endl;
+				return pos;
+			}
+			else {
+				//cout << "Bracket mult failed" << endl;
+				return 0;
+			}
+		}
+	}
+	
+	//cout << "mult is valid var" << endl;
+	return parseLength;
+}
+
+long Expr::isMathExprAddOp(string s) {
+	//cout << "Parsing add op" << endl;
+	char c;
+	long pos=0;
+	
+	while ((c=s.at(pos++))!=string::npos) {
 		if (c==' ' || c=='\t' || c=='\n') continue;
-		else if (c==';') {
-			cout << "Math expr is valid: " << s.substr(0, overall) << endl;
-			return overall;
+		else if (c=='+' || c=='-' || c=='=') {
+			//cout << "add op valid: " << s.substr(0, pos) << endl;
+			return pos;
 		}
 		else break;
 	}
-		
-	cout << "Expression is non-valid: no semicolon" << endl;
+	
+	//cout << "add op failed" << endl;
+	return 0;
+}
+
+long Expr::isMathExprMultOp(string s) {
+	//cout << "Parsing mult op" << endl;
+	char c;
+	long pos=0;
+	
+	while ((c=s.at(pos++))!=string::npos) {
+		if (c==' ' || c=='\t' || c=='\n') continue;
+		else if (c=='*' || c=='/' || c=='%') {
+			//cout << "mult op valid: " << s.substr(0,pos) << endl;
+			return pos;
+		}
+		else break;
+	}
+	
+	//cout << "mult op failed" << endl;
+	return 0;
+}
+
+long Expr::isSemicolon(string s) {
+	char c;
+	long pos = 0;
+	
+	while ((c=s.at(pos++))!=string::npos) {
+		if (c==' ' || c=='\t' || c=='\n') continue;
+		else if (c==';') {
+			//cout << "semicolon found" << endl;
+			return pos;
+		}
+		else break;
+	}
+	
+	//cout << "semicolon not found" << endl;
 	return 0;
 }
 
 long Expr::isCondExpr(string s) {
 	char c;
-	long i=0;
+	int pos=0;
 	int brackets=0;
 	
-	//Searching for "("
-	while ((c=s.at(i++))!=string::npos) {		
+	while ((c=s.at(pos++))!=string::npos) {
 		if (c==' ' || c=='\t' || c=='\n') continue;
-		else if (c=='(') {
-			brackets++;
-			break;
-		}
+		else if (c=='(') brackets++;
+		else break;
 	}
 	
 	if (!brackets) {
-		cout << "Cond_expr is not valid: no opening bracket" << endl;
+		cout << "cond_expr failed: no opening bracket" << endl;
 		return 0;
 	}
 	
-	//Searching for other brackets
-	while ((c=s.at(i++))!=string::npos) {
-		if (c=='(') brackets++;
-		else if (c=='{') {
-			break;
+	while ((c=s.at(pos++))!=string::npos) {
+		if (c==')') brackets--;
+		else if (c=='(') brackets++;
+		if (!brackets) {
+			//cout << "cond_expr valid: " << s.substr(0, pos) << endl;
+			return pos;
 		}
-		else if (c==')') {
-			brackets--;
-			if (!brackets) {
-				cout << "Conditional expr: ";
-				cout << s.substr(0, i) << endl;
-				return i;
-			}
-		}
-		
-		//TODO check for non-valid symbols
 	}
 	
-	cout << "Cond_expr is not valid: no closing bracket" << endl;
+	cout << "cond_expr failde: no closing bracket" << endl;
 	return 0;
 }
 
 long Expr::isBlock(string s) {
-	int i=0;
 	char c;
-	long termLength = 0;
-	long overall = 0;
+	int pos=0;
+	long parseDepth=0;
 	
-	while ((c=s.at(i++))!=string::npos) {
+	while ((c=s.at(pos++))!=string::npos) {
 		if (c==' ' || c=='\t' || c=='\n') continue;
-		else if (c=='{') {
-			termLength++;
-			break;
+		else if (c=='{') break;
+		else {
+			parseDepth = Expr::isMathExpr(s);
+			if (!parseDepth) {
+				cout << "Block failed: no math_expr" << endl;
+				return 0;
+			}
+			
+			//cout << "Block is valid: one-line" << endl;
+			return parseDepth;
 		}
-		else return Expr::isMathExpr(s.substr(i-1));
 	}
 	
-	if (!termLength) {
-		cout << "Block is not valid: no opening bracket" << endl;
-		return 0;
-	}
-	
-	overall = i-1+termLength;
-	
-	while ((c=s.at(i++))!=string::npos) {
-		if (c==' ' || c=='\t' || c=='\n') {
-			overall++;
-			continue;
-		}
+	while ((c=s.at(pos++))!=string::npos) {
+		if (c==' ' || c=='\t' || c=='\n') continue;
 		else if (c=='}') {
-			overall++;
-			cout << "Block is valid" << endl;
-			return overall;
+			//cout << "Block is valid" << endl;
+			return pos;
 		}
 		else {
-			long sub = Expr::isMathExpr(s.substr(i-1));
-			if (sub) {
-				overall+=sub;
-				i+=sub;
+			parseDepth = Expr::isMathExpr(s.substr(--pos));
+			if (!parseDepth) {
+				cout << "Block failed: expression failed" << endl;
+				return 0;
 			}
+			cout << "Expression: " << s.substr(pos,parseDepth) << endl;
+			pos+=parseDepth;
+			parseDepth = Expr::isSemicolon(s.substr(pos));
+			if (!parseDepth) {
+				cout << "Block failed: semicolon failed" << endl;
+				return 0;
+			}
+			pos+=parseDepth;
 		}
 	}
 	
-	cout << "Block is not valid: no closing bracket" << endl;
-	return 0;
-}
-
-long Expr::isMathOper(string s) {
-	int i=0;
-	char c;
-	
-	while ((c=s.at(i++))!=string::npos) {
-		if (c==' ' || c=='\t' || c=='\n') continue;
-		else if (c=='+' || c=='*' || c=='-' || c=='/' || c=='%' || c=='=') {
-			cout << "Math operator is valid: " << s.at(i-1) << endl;
-			return i;
-		}
-		else break;
-	}
-	
-	cout << "Math operator not found" << endl;
+	cout << "Block failed: no closing bracket" << endl;
 	return 0;
 }

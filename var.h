@@ -11,6 +11,9 @@ class Var {
 	static long isWord(string s);
 	static long isFunc(string s);
 	static long isNum(string s);
+	
+	private:
+	static long isComma(string s);
 };
 
 #endif

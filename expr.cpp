@@ -4,6 +4,8 @@
 
 using namespace std;
 
+int nesting = 0;
+
 long Expr::isMathExpr(string s) {
 	//cout << "Parsing math_expr" << endl;
 	char c;
@@ -20,19 +22,21 @@ long Expr::isMathExpr(string s) {
 	while ((c=s.at(pos))!=string::npos) {
 		parseLength = Expr::isMathExprAddOp(s.substr(pos));
 		if (!parseLength) {
-			//cout << "math_expr is add: " << s.substr(0,pos) << endl;
+			cout << "math_expr is add: " << s.substr(0,pos) << endl;
+			//cout << s.substr(0,pos) << endl;
 			return pos;
 		}
 		long prePos = parseLength;
 		parseLength = Expr::isMathExprAdd(s.substr(pos+parseLength));
 		if (!parseLength) {
-			//cout << "math_exrp is add: " << s.substr(0,pos) << endl;
+			cout << "math_exrp is add: " << s.substr(0,pos) << endl;
+			//cout << s.substr(0,pos) << endl;
 			return pos;
 		}
 		pos+=(prePos+parseLength);
 	}
 	
-	//cout << "math_expr: End of file is reached" << endl;
+	cout << "math_expr: End of file is reached" << endl;
 	return pos;
 }
 
@@ -52,19 +56,21 @@ long Expr::isMathExprAdd(string s) {
 	while ((c=s.at(pos))!=string::npos) {
 		parseLength = Expr::isMathExprMultOp(s.substr(pos));
 		if (!parseLength) {
-			//cout << "add is mult: " << s.substr(0,pos) << endl;
+			cout << "add is mult: " << s.substr(0,pos) << endl;
+			//cout << s.substr(0,pos);
 			return pos;
 		}
 		long prePos = parseLength;
 		parseLength = Expr::isMathExprMult(s.substr(pos+parseLength));
 		if (!parseLength) {
-			//cout << "add is mult: " << s.substr(0,pos) << endl;
+			cout << "add is mult: " << s.substr(0,pos) << endl;
+			//cout << s.substr(0,pos);
 			return pos;
 		}
 		pos+=(prePos+parseLength);
 	}
 	
-	//cout << "add: End of file is reached" << endl;
+	cout << "add: End of file is reached" << endl;
 	return pos;
 }
 
@@ -93,7 +99,8 @@ long Expr::isMathExprMult(string s ) {
 		while ((c=s.at(pos++))!=string::npos) {
 			if (c==' ' || c=='\t' || c=='\n') continue;
 			else if (c==')') {
-				//cout << "mult is valid (expr)" << s.substr(0,pos) << endl;
+				cout << "mult is valid expr: " << s.substr(0,pos) << endl;
+				//cout << s.substr(0,pos);
 				return pos;
 			}
 			else {
@@ -103,7 +110,8 @@ long Expr::isMathExprMult(string s ) {
 		}
 	}
 	
-	//cout << "mult is valid var" << endl;
+	//cout << "mult is valid var: " << s.substr(0, parseLength) << endl;
+	//cout << s.substr(0, parseLength) << endl;
 	return parseLength;
 }
 
@@ -115,7 +123,8 @@ long Expr::isMathExprAddOp(string s) {
 	while ((c=s.at(pos++))!=string::npos) {
 		if (c==' ' || c=='\t' || c=='\n') continue;
 		else if (c=='+' || c=='-' || c=='=') {
-			//cout << "add op valid: " << s.substr(0, pos) << endl;
+			cout << "add op valid: " << s.substr(0, pos) << endl;
+			//cout << s.substr(0, pos);
 			return pos;
 		}
 		else break;
@@ -133,7 +142,8 @@ long Expr::isMathExprMultOp(string s) {
 	while ((c=s.at(pos++))!=string::npos) {
 		if (c==' ' || c=='\t' || c=='\n') continue;
 		else if (c=='*' || c=='/' || c=='%') {
-			//cout << "mult op valid: " << s.substr(0,pos) << endl;
+			cout << "mult op valid: " << s.substr(0,pos) << endl;
+			//cout << s.substr(0,pos);
 			return pos;
 		}
 		else break;
@@ -216,12 +226,14 @@ long Expr::isBlock(string s) {
 			return pos;
 		}
 		else {
+			nesting = 0;
 			parseDepth = Expr::isMathExpr(s.substr(--pos));
 			if (!parseDepth) {
 				cout << "Block failed: expression failed" << endl;
 				return 0;
 			}
-			cout << "Expression: " << s.substr(pos,parseDepth) << endl;
+			cout << "Expression: " << s.substr(pos,parseDepth) << endl
+				<< endl;
 			pos+=parseDepth;
 			parseDepth = Expr::isSemicolon(s.substr(pos));
 			if (!parseDepth) {
@@ -234,4 +246,8 @@ long Expr::isBlock(string s) {
 	
 	cout << "Block failed: no closing bracket" << endl;
 	return 0;
+}
+
+void Expr::nest() {
+	for (int i=0; i<nesting; ++i) cout << " ";
 }

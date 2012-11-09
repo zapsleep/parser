@@ -16,6 +16,7 @@ class Expr {
 	static long isMathExprAddOp (string s);
 	static long isMathExprMultOp (string s);
 	static long isSemicolon (string s);
+	static void nest();
 };
 
 #endif
